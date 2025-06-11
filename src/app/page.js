@@ -1,103 +1,170 @@
-import Image from "next/image";
+'use client';
+
+import { useWalletClient } from 'wagmi';
+import { StoryClient} from '@story-protocol/core-sdk';
+import { toHex, zeroAddress, custom } from 'viem';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { data: wallet } = useWalletClient();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  async function setupStoryClient() {
+    if (!wallet) {
+      console.error('Wallet not connected');
+      return null;
+    }
+
+    const config = {
+      wallet,
+      transport: custom(wallet.transport),
+      chainId: 'aeneid',
+    };
+
+    return StoryClient.newClient(config);
+  }
+
+  async function registerIp() {
+    const client = await setupStoryClient();
+    if (!client) return;
+
+    const response = await client.ipAsset.register({
+      nftContract: '0x73fdaCfCE43d19c4165Ae27E48A56A0cF846fE35', // Replace with actual NFT contract address
+      tokenId: '0',
+      ipMetadata: {
+        ipMetadataURI: 'test-metadata-uri',
+        ipMetadataHash: toHex('test-metadata-hash', { size: 32 }),
+        nftMetadataURI: 'test-nft-metadata-uri',
+        nftMetadataHash: toHex('test-nft-metadata-hash', { size: 32 }),
+      },
+    });
+
+    console.log(
+      `Root IPA created at tx hash ${response.txHash}, IPA ID: ${response.ipId}`
+    );
+  }
+
+  async function attachLicenseTerms() {
+    const client = await setupStoryClient();
+    if (!client) return;
+
+    const response = await client.license.attachLicenseTerms({
+      licenseTermsId: '1603',
+      ipId: '0x613845C460094cE8De7E30D884A1d6b3f76D6179',
+    });
+
+    if (response.success) {
+      console.log(
+        `Attached License Terms to IPA at transaction hash ${response.txHash}.`
+      );
+    } else {
+      console.log(`License Terms already attached to this IPA.`);
+    }
+  }
+
+  async function mintLicenseToken() {
+    const client = await setupStoryClient();
+    if (!client) return;
+
+    const response = await client.license.mintLicenseTokens({
+      licenseTermsId: '1603',
+      licensorIpId: '0xFa9F432f984AF5E39D1c0B9B7b58f026Aa543EE9',
+      receiver: '0x5dA1F33adb455ACf8F21E8CBaa012c6e6526E2E6',
+      amount: 1,
+      maxMintingFee: 0n,
+      maxRevenueShare: 100,
+    });
+
+    console.log(
+      `License Token minted at tx hash ${response.txHash}, License IDs: ${response.licenseTokenIds}`
+    );
+  }
+
+ async function registerLicenseTerms() {
+    const client = await setupStoryClient();
+    if (!client) return;
+
+    const licenseTerms = {
+      transferable: false,
+      royaltyPolicy: '0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E',
+      defaultMintingFee: 0n,
+      expiration: 0n,
+      commercialUse: true,
+      commercialAttribution: false,
+      commercializerChecker: zeroAddress,
+      commercializerCheckerData: '0x',
+      commercialRevShare: 10,
+      commercialRevCeiling: 0n,
+      derivativesAllowed: true,
+      derivativesAttribution: false,
+      derivativesApproval: false,
+      derivativesReciprocal: false,
+      derivativeRevCeiling: 0n,
+      currency: '0x1514000000000000000000000000000000000000',
+      uri: '',
+    };
+
+    try {
+      const response = await client.license.registerPILTerms(licenseTerms);
+      console.log(
+        `✅ PIL Terms registered | txHash: ${response.txHash || 'N/A'} | LicenseTermsID: ${response.licenseTermsId}`
+      );
+    } catch (error) {
+      console.error('❌ Failed to register license terms:', error);
+    }
+  }
+    async function fetchLicenseTerms() {
+    const client = await setupStoryClient();
+    if (!client) return;
+
+    const licenseTermsId = '1603'; // Replace with the desired ID
+
+    try {
+      const { terms } = await client.license.getLicenseTerms(licenseTermsId);
+
+      console.log('📜 License Terms fetched:', terms);
+    } catch (error) {
+      console.error('❌ Failed to fetch license terms:', error);
+    }
+  }
+
+
+
+  return (
+    <div className="p-4 space-y-4">
+      <h1 className="text-xl font-bold mb-4">Story Protocol IP Registration</h1>
+      <button
+        onClick={registerIp}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Register IP
+      </button>
+
+      <button
+        onClick={registerLicenseTerms}
+        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+      >
+        Register License Terms
+      </button>
+
+      <button
+        onClick={attachLicenseTerms}
+        className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+      >
+        Attach License Terms
+      </button>
+
+      <button
+        onClick={mintLicenseToken}
+        className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+      >
+        Mint License Token
+      </button>
+      <button
+  onClick={fetchLicenseTerms}
+  className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800"
+>
+  Get License Terms
+</button>
+
     </div>
   );
 }
