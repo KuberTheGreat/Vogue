@@ -3,8 +3,7 @@
 import { useWalletClient } from 'wagmi';
 import { StoryClient} from '@story-protocol/core-sdk';
 import { toHex, zeroAddress, custom } from 'viem';
-import FameDashboard from './reputation.js';
-import { NFT_CONTRACT, ROYALTY_POLICY_LAP } from './constants.js';
+import FameDashboard from './test_rep.js';
 
 export default function Home() {
   const { data: wallet } = useWalletClient();
@@ -18,7 +17,7 @@ export default function Home() {
     const config = {
       wallet,
       transport: custom(wallet.transport),
-      chainId: "aeneid",
+      chainId: 'aeneid',
     };
 
     return StoryClient.newClient(config);
@@ -29,7 +28,7 @@ export default function Home() {
     if (!client) return;
 
     const response = await client.ipAsset.register({
-      nftContract: NFT_CONTRACT, // Replace with actual NFT contract address
+      nftContract: '0xC9fD9f911fA777ffE67ad6627cF2Ca3ca9CD3FEf', // Replace with actual NFT contract address
       tokenId: '0',
       ipMetadata: {
         ipMetadataURI: 'test-metadata-uri',
@@ -38,8 +37,6 @@ export default function Home() {
         nftMetadataHash: toHex('test-nft-metadata-hash', { size: 32 }),
       },
     });
-
-    console.log(response);
 
     console.log(
       `Root IPA created at tx hash ${response.txHash}, IPA ID: ${response.ipId}`
@@ -88,7 +85,7 @@ export default function Home() {
 
     const licenseTerms = {
       transferable: false,
-      royaltyPolicy: ROYALTY_POLICY_LAP,
+      royaltyPolicy: '0xBe54FB168b3c982b7AaE60dB6CF75Bd8447b390E',
       defaultMintingFee: 0n,
       expiration: 0n,
       commercialUse: true,
