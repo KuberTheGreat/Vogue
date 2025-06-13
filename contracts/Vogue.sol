@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
-import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import { IIPAssetRegistry } from "protocol-core-v1/contracts/interfaces/registries/IIPAssetRegistry.sol";
 import { ILicenseRegistry } from "protocol-core-v1/contracts/interfaces/registries/ILicenseRegistry.sol";
-import { IPILicenseTemplate } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
-import { ILicensingModule } from "@storyprotocol/core/interfaces/modules/licensing/ILicensingModule.sol";
-import { IRoyaltyModule } from "@storyprotocol/core/interfaces/modules/royalty/IRoyaltyModule.sol";
-import { PILTerms } from "@storyprotocol/core/interfaces/modules/licensing/IPILicenseTemplate.sol";
-import { PILFlavors } from "@storyprotocol/core/lib/PILFlavors.sol";
-import { RoyaltyWorkflows } from "@storyprotocol/periphery/workflows/RoyaltyWorkflows.sol";
+import { IPILicenseTemplate } from "../protocol-core-v1/contracts/interfaces/modules/licensing/IPILicenseTemplate.sol";
+import { ILicensingModule } from "../protocol-core-v1/contracts/interfaces/modules/licensing/ILicensingModule.sol";
+import { IRoyaltyModule } from "../protocol-core-v1/contracts/interfaces/modules/royalty/IRoyaltyModule.sol";
+import { PILTerms } from "../protocol-core-v1/contracts/interfaces/modules/licensing/IPILicenseTemplate.sol";
+import { PILFlavors } from "../protocol-core-v1/contracts/lib/PILFlavors.sol";
+import {RoyaltyWorkflows} from "./mocks/MockRoyaltyWorkflows.sol";
+
+
 
 contract FashionRemixNFT is ERC1155, Ownable(msg.sender), ERC2981 {
     uint256 public nextTokenId = 1;
@@ -66,6 +69,49 @@ contract FashionRemixNFT is ERC1155, Ownable(msg.sender), ERC2981 {
         ROYALTY_WORKFLOWS = RoyaltyWorkflows(_royaltyWorkflows);
         ROYALTY_POLICY_LAP = _royaltyPolicyLAP;
         MERC20 = _merc20;
+    }
+
+    // ------------------------------
+    //         REPUTATION
+    // ------------------------------
+
+    mapping(address => uint256) public creatorReputation;
+    mapping(address => uint256) public creatorSales;
+    mapping(address => uint256) public creatorLikes;
+    
+    event ReputationBoosted(address indexed creator, uint256 newReputation);
+    event SaleRecorded(address indexed creator, uint256 amount);
+    event LikeAdded(address indexed creator, uint256 newLikeCount);
+
+    function recordSale(address creator, uint256 amount) external {
+        creatorSales[creator] += amount;
+        _updateReputation(creator);
+        emit SaleRecorded(creator, amount);
+    }
+
+    function likeCreator(address creator) external {
+        creatorLikes[creator] += 1;
+        _updateReputation(creator);
+        emit LikeAdded(creator, creatorLikes[creator]);
+    }
+
+    function _updateReputation(address creator) internal {
+        // Simple weighted formula: 1 like = 10 pts, 1 token sold = 1 pt
+        uint256 rep = (creatorLikes[creator] * 10) + (creatorSales[creator]);
+        creatorReputation[creator] = rep;
+        emit ReputationBoosted(creator, rep);
+    }
+
+    function getCreatorTier(address creator) external view returns (string memory) {
+        uint256 rep = creatorReputation[creator];
+        if (rep >= 1000) return "Legendary";
+        if (rep >= 500) return "Epic";
+        if (rep >= 100) return "Rare";
+        return "Common";
+    }
+
+    function getReputation(address creator) external view returns (uint256) {
+        return creatorReputation[creator];
     }
 
     // ------------------------------

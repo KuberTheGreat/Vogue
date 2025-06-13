@@ -1,11 +1,11 @@
 'use client';
 
-import { useWalletClient, useChainId } from 'wagmi';
+import { useWalletClient } from 'wagmi';
 import { useEffect, useState } from 'react';
 import { createPublicClient, createWalletClient, http, custom, parseEther } from 'viem';
 import { storyAeneid } from 'viem/chains';
-import { abi as repAbi } from './CreatorReputationABI.js';
-import { NFT_CONTRACT } from './constants.js';
+import { abi as repAbi } from '../contract_data/CreatorReputationABI.js';
+import { NFT_CONTRACT } from '../contract_data/constants.js';
 
 const CONTRACT_ADDRESS = NFT_CONTRACT;
 
@@ -56,8 +56,6 @@ export default function FameDashboard() {
   useEffect(() => {
     if (wallet) getReputation();
   }, [wallet]);
-
-  console.log("Reputation updated!!")
   
   return (
     <div className="p-4">

@@ -4,7 +4,9 @@ import { useWalletClient } from 'wagmi';
 import { StoryClient} from '@story-protocol/core-sdk';
 import { toHex, zeroAddress, custom } from 'viem';
 import FameDashboard from './reputation.js';
-import { NFT_CONTRACT, ROYALTY_POLICY_LAP } from './constants.js';
+import { NFT_CONTRACT, ROYALTY_POLICY_LAP } from '../contract_data/constants.js';
+import DesignUploadForm from './components/DesignUploadForm.js';
+import MyDesigns from './components/MyDesigns.js';
 
 export default function Home() {
   const { data: wallet } = useWalletClient();
@@ -28,15 +30,17 @@ export default function Home() {
     const client = await setupStoryClient();
     if (!client) return;
 
+    console.log(client);
+    
     const response = await client.ipAsset.register({
-      nftContract: NFT_CONTRACT, // Replace with actual NFT contract address
-      tokenId: '0',
+      nftContract: NFT_CONTRACT,
+      tokenId: '1',
       ipMetadata: {
         ipMetadataURI: 'test-metadata-uri',
         ipMetadataHash: toHex('test-metadata-hash', { size: 32 }),
         nftMetadataURI: 'test-nft-metadata-uri',
         nftMetadataHash: toHex('test-nft-metadata-hash', { size: 32 }),
-      },
+      }
     });
 
     console.log(response);
@@ -135,6 +139,7 @@ export default function Home() {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-bold mb-4">Story Protocol IP Registration</h1>
+      <DesignUploadForm/>
       <button
         onClick={registerIp}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -171,6 +176,7 @@ export default function Home() {
 
         <FameDashboard/>
 
+        <MyDesigns/>
     </div>
   );
 }
