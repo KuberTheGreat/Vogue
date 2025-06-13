@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { client } from "../utils/storyClient";
+import { getStoryClient } from "../utils/storyClient";
 
 // import { WIP_TOKEN_ADDRESS } from "../utils/storyClient"; // Uncomment if WIP_TOKEN_ADDRESS is exported
 const WIP_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with your actual WIP token address
@@ -20,6 +20,7 @@ export default function PayRoyaltyPage() {
 
     setLoading(true);
     try {
+      const client = getStoryClient();
       const response = await client.royalty.payRoyaltyOnBehalf({
         receiverIpId: "0xcd3B766CCDd6AE721141F452C550Ca635964ce71", // Replace this with your NFT's IP ID (must be a valid 0x... address)
         payerIpId: zeroAddress,

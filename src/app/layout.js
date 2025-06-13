@@ -1,46 +1,57 @@
-'use client';
-import '@rainbow-me/rainbowkit/styles.css';
-import './globals.css';
+"use client"
+import "@rainbow-me/rainbowkit/styles.css"
+import "./globals.css"
 
-import { Geist, Geist_Mono } from 'next/font/google';
-import {
-  getDefaultConfig,
-  RainbowKitProvider,
-  ConnectButton
-} from '@rainbow-me/rainbowkit';
+import { Geist, Geist_Mono } from "next/font/google"
+import { getDefaultConfig, RainbowKitProvider, ConnectButton } from "@rainbow-me/rainbowkit"
 
-import { WagmiProvider, http } from 'wagmi';
-import { aeneid } from '@story-protocol/core-sdk';
-import {
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query';
+import { WagmiProvider } from "wagmi"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { http } from "viem"
 
-// Load fonts
+// Story Protocol Aeneid testnet configuration
+const aeneidChain = {
+  id: 1513,
+  name: "Story Aeneid Testnet",
+  network: "aeneid",
+  nativeCurrency: {
+    decimals: 18,
+    name: "WIP",
+    symbol: "WIP",
+  },
+  rpcUrls: {
+    public: { http: ["https://testnet.storyrpc.io"] },
+    default: { http: ["https://testnet.storyrpc.io"] },
+  },
+  blockExplorers: {
+    default: { name: "Story Explorer", url: "https://testnet.storyscan.xyz" },
+  },
+  testnet: true,
+}
+
+
 const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+})
 
-// Configure RainbowKit + Wagmi
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
+
 const config = getDefaultConfig({
-  appName: 'My RainbowKit App',
-  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Get this from WalletConnect Cloud
-  chains: [aeneid],
+  appName: "Vogue Story Protocol",
+  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "YOUR_PROJECT_ID",
+  chains: [aeneidChain],
   ssr: true,
   transports: {
-
+    [aeneidChain.id]: http("https://testnet.storyrpc.io"),
   },
-});
+})
 
-// Initialize Query Client
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
-// Root layout or App component
 export default function AppLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
@@ -48,7 +59,7 @@ export default function AppLayout({ children }) {
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider>
-              <div style={{ padding: '1rem' }}>
+              <div style={{ padding: "1rem" }}>
                 <ConnectButton />
                 {children}
               </div>
@@ -57,5 +68,5 @@ export default function AppLayout({ children }) {
         </WagmiProvider>
       </body>
     </html>
-  );
+  )
 }
