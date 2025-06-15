@@ -99,6 +99,7 @@ import { StoryClient } from '@story-protocol/core-sdk';
 import { NFT_CONTRACT } from '@/contract_data/constants';
 import { custom, toHex } from 'viem';
 import AttachLicenseTerms from './AttachLicenseTerms';
+import LicenseManager from './MintLicenseTokens';
 
 export default function RegisterIP({ tokenId }) {
   const { address, isConnected } = useAccount();
@@ -207,7 +208,7 @@ export default function RegisterIP({ tokenId }) {
             <div className="text-green-700 font-medium p-2 border border-green-500 rounded bg-green-100">
             ✅ This design is already registered with IP ID: <span className="font-mono">{ipId}</span>
             </div>
-            <AttachLicenseTerms ipId={ipId}/>
+            <LicenseManager ipId={ipId}/>
         </div>
       ) : (
         <>
@@ -228,9 +229,6 @@ export default function RegisterIP({ tokenId }) {
           </button>
         </>
       )}
-
-      <div className="text-sm text-gray-700">{status}</div>
-      <div className="text-sm text-gray-700">{status}</div>
     </div>
   );
 }
