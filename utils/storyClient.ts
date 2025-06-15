@@ -9,20 +9,9 @@ const STORY_NETWORKS = {
     rpcUrl: "https://testnet.storyrpc.io",
     name: "Story Aeneid Testnet",
   },
-  odyssey: {
-    chainId: "odyssey",
-    rpcUrl: "https://odyssey.storyrpc.io",
-    name: "Story Odyssey Testnet",
-  },
-  mainnet: {
-    chainId: "story",
-    rpcUrl: "https://mainnet.storyrpc.io", // When available
-    name: "Story Mainnet",
-  },
 }
 
-// ===== CHANGE THIS TO SWITCH NETWORKS =====
-const SELECTED_NETWORK = "odyssey" // Change to "aeneid" or "mainnet"
+const SELECTED_NETWORK = "aeneid"
 
 const getStoryConfig = (): StoryConfig => {
   const networkConfig = STORY_NETWORKS[SELECTED_NETWORK]
@@ -50,3 +39,12 @@ export const getStoryClient = () => StoryClient.newClient(getStoryConfig())
 
 // Export current network info for debugging
 export const getCurrentNetwork = () => STORY_NETWORKS[SELECTED_NETWORK]
+
+// Frontend-specific Story Protocol functions
+export const createStoryClientWithWallet = (wallet: any) => {
+  return StoryClient.newClient({
+    wallet,
+    transport: wallet.transport,
+    chainId: SELECTED_NETWORK,
+  })
+}
