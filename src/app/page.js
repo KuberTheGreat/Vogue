@@ -7,6 +7,7 @@ import FameDashboard from "./reputation.js"
 import DesignUploadForm from "./components/DesignUploadForm.js"
 import MyDesigns from "./components/MyDesigns.js"
 import RoyaltyManager from "./components/RoyaltyManager.js"
+import AllDesigns from "./components/AllDesigns.js"
 
 export default function Home() {
   const { data: wallet } = useWalletClient()
@@ -20,7 +21,7 @@ export default function Home() {
     const config = {
       wallet,
       transport: custom(wallet.transport),
-      chainId: "aeneid",
+      chainId: "aeneid"
     }
 
     return StoryClient.newClient(config)
@@ -43,7 +44,13 @@ export default function Home() {
   }
 
   async function fetchLicenseTerms() {
-    console.log("Fetch License Terms called")
+    const client = StoryClient.newClient({
+        wallet,
+        transport: custom(wallet.transport),
+        chainId: 'aeneid',
+    });
+
+
   }
 
   // ... keep your existing functions ...
@@ -75,6 +82,8 @@ export default function Home() {
         <h2 className="text-xl font-semibold mb-4">Reputation Dashboard</h2>
         <FameDashboard />
       </section>
+
+      <AllDesigns/>
 
       {/* Developer Tools */}
       <section className="border-t pt-6">

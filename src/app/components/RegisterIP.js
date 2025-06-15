@@ -125,7 +125,7 @@ export default function RegisterIP({ tokenId }) {
         if (!wallet || !isConnected || !tokenId) return;
 
         try {
-        const client = await StoryClient.newClient({
+        const client = StoryClient.newClient({
             wallet,
             transport: custom(wallet.transport),
             chainId: 'aeneid',
@@ -187,9 +187,7 @@ export default function RegisterIP({ tokenId }) {
       console.log('✨ Story Protocol Registration:', result);
     } catch (err) {
       console.error('🔥 Registration failed:', err);
-      setStatus(`❌ Error: ${err.message || 'Unknown error'}`);
-      console.error('🔥 Registration failed:', err);
-      setStatus(`❌ Error: ${err.message || 'Unknown error'}`);
+      setStatus("❌ Registration failed")
     }
   };
 
@@ -198,26 +196,26 @@ export default function RegisterIP({ tokenId }) {
   };
 
   return (
-    <div className="flex flex-col gap-2 p-4 border rounded-lg shadow bg-gray-400">
-      <p className="font-semibold text-black">Token #{tokenId}</p>
+    <div className="flex flex-col gap-2 p-4 border rounded-lg shadow bg-black">
+      <p className="font-semibold text-white">Token #{tokenId}</p>
 
       {loading ? (
-        <p className="text-gray-600">🔍 Checking registration status...</p>
+        <p className="text-white">🔍 Checking registration status...</p>
       ) : alreadyRegistered ? (
         <div>
             <div className="text-green-700 font-medium p-2 border border-green-500 rounded bg-green-100">
-            ✅ This design is already registered with IP ID: <span className="font-mono">{ipId}</span>
+            ✅ This design is already registered with IP ID: <span className="font-mono text-sm">{ipId}</span>
             </div>
-            <LicenseManager ipId={ipId}/>
+            <AttachLicenseTerms ipId={ipId}/>
         </div>
       ) : (
         <>
-          <div className="bg-gray-200 p-5 rounded">
-            <input type="text" name="nftMetadataURI" onChange={handleChange} placeholder="NFT Metadata URI" className="w-full p-2 border rounded text-black mb-2" required />
-            <input type="text" name="name" onChange={handleChange} placeholder="IP Name" className="w-full p-2 border rounded text-black mb-2" required />
-            <textarea name="description" onChange={handleChange} placeholder="IP Description" className="w-full p-2 border rounded text-black mb-2" required />
-            <input type="text" name="creator" onChange={handleChange} placeholder="Creator Name" className="w-full p-2 border rounded text-black mb-2" required />
-            <input type="text" name="licenseTags" onChange={handleChange} placeholder="License Tags (comma-separated)" className="w-full p-2 border rounded text-black" required />
+          <div className="bg-black p-5 rounded">
+            <input type="text" name="nftMetadataURI" onChange={handleChange} placeholder="NFT Metadata URI" className="w-full p-2 border rounded text-white mb-2" required />
+            <input type="text" name="name" onChange={handleChange} placeholder="IP Name" className="w-full p-2 border rounded text-white mb-2" required />
+            <textarea name="description" onChange={handleChange} placeholder="IP Description" className="w-full p-2 border rounded text-white mb-2" required />
+            <input type="text" name="creator" onChange={handleChange} placeholder="Creator Name" className="w-full p-2 border rounded text-white mb-2" required />
+            <input type="text" name="licenseTags" onChange={handleChange} placeholder="License Tags (comma-separated)" className="w-full p-2 border rounded text-white" required />
           </div>
 
           <button

@@ -18,15 +18,16 @@ export default function AttachLicenseTerms({ ipId }) {
     const fetchLicenseTerms = async () => {
       if (!wallet || !address) return;
 
-      const storyClient = await StoryClient.newClient({
+      const storyClient = StoryClient.newClient({
             wallet,
             transport: custom(wallet.transport),
             chainId: 'aeneid',
         });
 
       try {
-        const terms = await storyClient.license.getAllLicenseTerms();
+        const terms = await storyClient.license.getLicenseTerms(selectedLicenseId);
         setLicenseTermsList(terms);
+        console.log(terms)
       } catch (err) {
         console.error('❌ Failed to fetch license terms:', err);
         setStatus('❌ Could not fetch license terms');
@@ -56,9 +57,12 @@ export default function AttachLicenseTerms({ ipId }) {
       });
 
       setStatus('✅ License terms attached!');
+      const terms = await storyClient.license.getLicenseTerms(selectedLicenseId);
+        setLicenseTermsList(terms);
+        console.log(terms)
     } catch (err) {
       console.error('🔥 Attach failed:', err);
-      setStatus(`❌ ${err.message}`);
+      setStatus("❌ Couldn't Attach License Terms")
     }
   };
 

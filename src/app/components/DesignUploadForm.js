@@ -97,7 +97,7 @@ export default function DesignMintForm() {
       <input
         type="file"
         accept="image/*"
-        className="w-full"
+        className="w-full border-2 bg-gray-800 rounded p-3"
         onChange={handleFileChange}
       />
 
