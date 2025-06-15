@@ -102,8 +102,6 @@ import AttachLicenseTerms from './AttachLicenseTerms';
 
 export default function RegisterIP({ tokenId }) {
   const { address, isConnected } = useAccount();
-export default function RegisterIP({ tokenId }) {
-  const { address, isConnected } = useAccount();
   const { data: wallet } = useWalletClient();
   const [status, setStatus] = useState('');
   const [ipId, setIpId] = useState(null);
