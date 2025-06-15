@@ -70,7 +70,7 @@ export default function DesignMintForm() {
         address: NFT_CONTRACT,
         abi: abi,
         functionName: 'mintOriginal',
-        args: [metadataURI, 1], // tokenId, amount, URI (depends on your contract)
+        args: [metadataURI], // tokenId, amount, URI (depends on your contract)
       });
 
       alert('✅ NFT minted successfully!');

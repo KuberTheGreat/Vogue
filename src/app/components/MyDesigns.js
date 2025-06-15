@@ -17,8 +17,6 @@ export default function MyDesigns() {
     })
   const [designs, setDesigns] = useState([]);
   const MAX_TOKEN_ID = 10; // adjust if you expect more
-    console.log("Address: ", address);
-    console.log("Public client", publicClient);
   useEffect(() => {
     async function fetchOwnedDesigns() {
       if (!isConnected || !address) return;
@@ -29,21 +27,10 @@ export default function MyDesigns() {
 
       for (let tokenId = 1; tokenId <= MAX_TOKEN_ID; tokenId++) {
         try {
-          const balance = await publicClient.readContract({
-            address: NFT_CONTRACT,
-            abi: abi,
-            functionName: 'balanceOf',
-            args: [address, BigInt(tokenId)],
-            publicClient,
-          });
-
-          console.log(`Token ${tokenId}: balance = ${balance}`);
-
-          if (balance > 0n) {
             let uri = await publicClient.readContract({
               address: NFT_CONTRACT,
               abi: abi,
-              functionName: 'uri',
+              functionName: 'tokenURI',
               args: [BigInt(tokenId)],
               publicClient,
             });
@@ -61,7 +48,6 @@ export default function MyDesigns() {
               uri,
               meta,
             });
-          }
         } catch (e) {
           console.error(`Error tokenId=${tokenId}:`, e.message);
         }
@@ -72,7 +58,7 @@ export default function MyDesigns() {
     }
 
     fetchOwnedDesigns();
-  }, [isConnected, address, publicClient]);
+  }, [isConnected, address]);
 
   if (!isConnected) {
     return <p className="p-4 text-center">🔌 Connect your wallet to see your designs.</p>;
@@ -98,7 +84,7 @@ export default function MyDesigns() {
               </div>
 
               <div className="mt-4">
-                <RegisterIP tokenId={tokenId.toString()} nftContract={NFT_CONTRACT} />
+                <RegisterIP tokenId={tokenId.toString()}/>
               </div>
             </div>
           ))}
