@@ -9,6 +9,7 @@ import MyDesigns from "./components/MyDesigns.js"
 import RoyaltyManager from "./components/RoyaltyManager.js"
 import AllDesigns from "./components/AllDesigns.js"
 
+
 export default function Home() {
   const { data: wallet } = useWalletClient()
 
@@ -84,7 +85,7 @@ export default function Home() {
       </section>
 
       <AllDesigns/>
-
+        
       {/* Developer Tools */}
       <section className="border-t pt-6">
         <h2 className="text-xl font-semibold mb-4">Developer Tools</h2>

@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { StoryClient } from '@story-protocol/core-sdk';
-import { custom } from 'viem';
+import { custom } from 'viem'
+import {RoyaltyDashboard} from '../components/RoyaltyDashboard.js';;
 
 export default function AttachLicenseTerms({ ipId }) {
   const { address } = useAccount();
@@ -104,6 +105,8 @@ export default function AttachLicenseTerms({ ipId }) {
       </button>
 
       {status && <p className="text-sm text-gray-600">{status}</p>}
+
+      <RoyaltyDashboard ipId={ipId} walletAddress={address}/>
     </div>
   );
 }

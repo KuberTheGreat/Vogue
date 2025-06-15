@@ -102,7 +102,7 @@ export default function RoyaltyManager() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-lg">
+    <div className="p-6 bg-black rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6">💰 Royalty Dashboard</h2>
 
       {/* Royalty Summary */}
