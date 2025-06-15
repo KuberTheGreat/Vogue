@@ -33,8 +33,8 @@ export default function Home() {
     console.log(client);
     
     const response = await client.ipAsset.register({
-      nftContract: NFT_CONTRACT,
-      tokenId: '1',
+      nftContract: "0x8B95515649306dBA40D4d2F327C7f4A6b0D91107",
+      tokenId: '2',
       ipMetadata: {
         ipMetadataURI: 'test-metadata-uri',
         ipMetadataHash: toHex('test-metadata-hash', { size: 32 }),

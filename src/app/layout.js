@@ -2,6 +2,7 @@
 import '@rainbow-me/rainbowkit/styles.css';
 import './globals.css';
 
+import { StoryProvider } from '@story-protocol/react-sdk';
 import { Geist, Geist_Mono } from 'next/font/google';
 import {
   getDefaultConfig,
@@ -9,6 +10,7 @@ import {
   ConnectButton
 } from '@rainbow-me/rainbowkit';
 
+import { storyAeneid } from 'viem/chains';
 import { WagmiProvider, http } from 'wagmi';
 import { aeneid } from '@story-protocol/core-sdk';
 import {

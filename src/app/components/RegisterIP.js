@@ -1,110 +1,121 @@
+// 'use client';
+
+// import { useEffect, useState } from 'react';
+// import { useAccount, useWalletClient, useWriteContract } from 'wagmi';
+// // import { writeContract } from '@wagmi/core';
+// import { NFT_CONTRACT } from '@/contract_data/constants';
+// import {abi as FASHION_ABI} from '@/contract_data/CreatorReputationABI'
+
+
+// export default function RegisterIP({ tokenId }) {
+//   const { address, isConnected } = useAccount();
+//   const { data: walletClient } = useWalletClient();
+//   const [status, setStatus] = useState('');
+//   const {data: hash, writeContract} = useWriteContract();
+
+//   const handleRegister = async () => {
+//     useEffect(() => {
+//         if (!isConnected || !walletClient) {
+//         setStatus('🔌 Connect your wallet first');
+//         return;
+//         }
+
+//         try {
+//         setStatus('📝 Sending transaction...');
+//             writeContract({
+//             address: NFT_CONTRACT,
+//             abi: FASHION_ABI,
+//             functionName: 'registerIPFromFrontend',
+//             args: [tokenId],
+//             account: address, // <-- This is needed for walletClient to sign
+//             chainId: walletClient.chain.id,
+//         });
+//         console.log(hash);
+//         setStatus(`✅ Tx sent: ${hash}`);
+//         } catch (err) {
+//         console.error('🔥 Registration error:', err);
+//         setStatus(`❌ Error: ${err.message}`);
+//         }
+//     }, [status])
+//   };
+
+//   return (
+//     <div className="flex flex-col gap-2">
+//       <button
+//         onClick={handleRegister}
+//         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+//       >
+//         Register IP
+//       </button>
+//       <div className="text-sm text-gray-700">{status}</div>
+//     </div>
+//   );
+// }
+
+
 'use client';
 
 import { useState } from 'react';
-import { useWalletClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 import { StoryClient } from '@story-protocol/core-sdk';
-import { toHex, custom } from 'viem';
-import axios from 'axios';
-import { PINATA_JWT } from '@/contract_data/constants.js';
+import { NFT_CONTRACT } from '@/contract_data/constants';
+import { custom, toHex } from "viem";
 
-export default function RegisterIP() {
+
+export default function RegisterIP({ tokenId }) {
+  const { address, isConnected } = useAccount();
   const { data: wallet } = useWalletClient();
-
-  const [form, setForm] = useState({
-    nftContract: '',
-    tokenId: '',
-    name: '',
-    description: '',
-    creator: '',
-    licenseTags: '',
-    nftMetadataURI: ''
-  });
-
   const [status, setStatus] = useState('');
+  const [ipId, setIpId] = useState(null);
 
-  const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleRegister = async () => {
+    if (!isConnected || !wallet) {
+      setStatus('🔌 Please connect your wallet');
+      return;
+    }
 
-  const setupStoryClient = async () => {
-    if (!wallet) return null;
-    return StoryClient.newClient({
-      wallet,
-      transport: custom(wallet.transport),
-      chainId: 'aeneid',
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus('⏳ Uploading IP Metadata...');
+    setStatus('🚀 Registering on Story Protocol...');
 
     try {
-      const ipMetadataJSON = {
-        name: form.name,
-        description: form.description,
-        creator: form.creator,
-        creationDate: new Date().toISOString(),
-        licenseTags: form.licenseTags.split(',').map(tag => tag.trim()),
-        version: "1.0"
-      };
-
-      const metadataBlob = new Blob([JSON.stringify(ipMetadataJSON)], {
-        type: 'application/json'
+      const client = await StoryClient.newClient({
+        wallet: wallet,
+        transport: custom(wallet.transport),
+        chainId: 'aeneid', // you can also use chain ID 252 directly if needed
       });
 
-      const formData = new FormData();
-      formData.append('file', metadataBlob);
-
-      const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
-        headers: {
-          Authorization: `Bearer ${PINATA_JWT}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      const ipMetadataURI = `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
-
-      setStatus('📡 Registering with Story Protocol...');
-
-      const client = await setupStoryClient();
-      const response = await client.ipAsset.register({
-        nftContract: form.nftContract,
-        tokenId: form.tokenId,
+      const result = await client.ipAsset.register({
+        nftContract: NFT_CONTRACT,
+        tokenId: BigInt(tokenId),
         ipMetadata: {
-          ipMetadataURI,
-          ipMetadataHash: toHex('ip-metadata-hash', { size: 32 }),
-          nftMetadataURI: form.nftMetadataURI,
-          nftMetadataHash: toHex('nft-metadata-hash', { size: 32 }),
+            ipMetadataURI: 'test-metadata-uri',
+            ipMetadataHash: toHex('test-metadata-hash', { size: 32 }),
+            nftMetadataURI: 'test-nft-metadata-uri',
+            nftMetadataHash: toHex('test-nft-metadata-hash', { size: 32 }),
         }
       });
 
-      setStatus(`✅ IP Registered! Tx: ${response.txHash}, ID: ${response.ipId}`);
+      setIpId(result.ipId);
+      setStatus(`✅ Registered with IP ID: ${result.ipId}`);
+      console.log('✨ Story Protocol Registration:', result);
     } catch (err) {
-      console.error(err);
-      setStatus('❌ Error registering IP');
+      console.error('🔥 Registration failed:', err);
+      setStatus(`❌ Error: ${err.message || 'Unknown error'}`);
     }
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto bg-black rounded shadow">
-      <h2 className="text-lg font-bold mb-4">Register Design as IP</h2>
+    <div className="flex flex-col gap-2 p-4 border rounded-lg shadow">
+      <p className="font-semibold">Token #{tokenId}</p>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input type="text" name="nftContract" onChange={handleChange} placeholder="NFT Contract Address" className="w-full p-2 border rounded" required />
-        <input type="text" name="tokenId" onChange={handleChange} placeholder="Token ID" className="w-full p-2 border rounded" required />
-        <input type="text" name="nftMetadataURI" onChange={handleChange} placeholder="NFT Metadata URI" className="w-full p-2 border rounded" required />
-        <input type="text" name="name" onChange={handleChange} placeholder="IP Name" className="w-full p-2 border rounded" required />
-        <textarea name="description" onChange={handleChange} placeholder="IP Description" className="w-full p-2 border rounded" required />
-        <input type="text" name="creator" onChange={handleChange} placeholder="Creator Name" className="w-full p-2 border rounded" required />
-        <input type="text" name="licenseTags" onChange={handleChange} placeholder="License Tags (comma-separated)" className="w-full p-2 border rounded" required />
+      <button
+        onClick={handleRegister}
+        className="bg-violet-600 text-white px-4 py-2 rounded hover:bg-violet-700"
+        disabled={!!ipId}
+      >
+        {ipId ? 'Registered ✅' : 'Register IP'}
+      </button>
 
-        <button type="submit" className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          Register IP
-        </button>
-      </form>
-
-      <div className="mt-4 text-sm text-gray-700">{status}</div>
+      <div className="text-sm text-gray-700">{status}</div>
     </div>
   );
 }
