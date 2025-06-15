@@ -102,6 +102,8 @@ import AttachLicenseTerms from './AttachLicenseTerms';
 
 export default function RegisterIP({ tokenId }) {
   const { address, isConnected } = useAccount();
+export default function RegisterIP({ tokenId }) {
+  const { address, isConnected } = useAccount();
   const { data: wallet } = useWalletClient();
   const [status, setStatus] = useState('');
   const [ipId, setIpId] = useState(null);
@@ -187,6 +189,8 @@ export default function RegisterIP({ tokenId }) {
     } catch (err) {
       console.error('🔥 Registration failed:', err);
       setStatus(`❌ Error: ${err.message || 'Unknown error'}`);
+      console.error('🔥 Registration failed:', err);
+      setStatus(`❌ Error: ${err.message || 'Unknown error'}`);
     }
   };
 
@@ -227,6 +231,7 @@ export default function RegisterIP({ tokenId }) {
         </>
       )}
 
+      <div className="text-sm text-gray-700">{status}</div>
       <div className="text-sm text-gray-700">{status}</div>
     </div>
   );
