@@ -6,8 +6,12 @@ import { NFT_CONTRACT } from '@/contract_data/constants.js';
 import { abi } from '@/contract_data/CreatorReputationABI.js';
 import RegisterIP from './RegisterIP.js';
 import { createPublicClient, http } from 'viem'
-import { storyAeneid } from 'wagmi/chains'
-
+import { Client } from '@story-protocol/core-sdk';
+import { createWalletClient } from 'viem';
+// import { storyAeneid } from 'wagmi/chains';
+import { privateKeyToAccount } from 'viem/accounts';
+import { WIP_TOKEN_ADDRESS } from '@/contract_data/constants.js'; // Define this properly
+import { storyAeneid } from 'viem/chains';
 
 export default function MyDesigns() {
   const { address, isConnected } = useAccount();
